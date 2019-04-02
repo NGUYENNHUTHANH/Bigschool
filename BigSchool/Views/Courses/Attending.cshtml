@@ -1,0 +1,82 @@
+﻿@{
+    ViewBag.Title = "Attending";
+}
+
+@model BigSchool.ViewModels.CoursesViewModel
+
+<div class="jumbotron">
+    <h1>HUTECH Academy</h1>
+    <p class="lead">The best blood sucker academy in HCMC</p>
+    <p><a href="http://asp.net" class="btn btn-primary btn-lg">Learn more &raquo;</a></p>
+</div>
+
+<div class="row">
+    <ul class="course">
+        @foreach (var course in Model.UpcomingCourses)
+        {
+            <li>
+                <div class="date">
+                    <div class="month">
+                        @course.DateTime.ToString("MM")
+                    </div>
+                    <div class="day">
+                        @course.DateTime.ToString("dd")
+                    </div>
+                </div>
+                <div class="details">
+                    <span class="lecturer">
+                        @course.Lecturer.Name
+
+                        @if (course.IsCanceled)
+                        {
+                            <span class="label label-warning">Canceled</span>
+                        }
+
+                        @if (Model.ShowAction && !course.IsCanceled)
+                        {
+                            <button class="btn btn-default btn-sm js-toggle-follow" data-user-id="@course.LecturerId">Follow</button>
+                        }
+
+                    </span>
+
+                    <p class="category">
+                        @course.Category.Name
+                        <button data-course-id="@course.Id" class="btn btn-default btn-sm js-toggle-attendance">Going?</button>
+                    </p>
+                </div>
+            </li>
+        }
+    </ul>
+    @section scripts {
+        <script>
+            $(document).ready(() => {
+                alert("jquery is works!");
+
+                $(".js-toggle-attendance").click((e) => {
+                    var button = $(e.target);
+                    $.post("/api/attendances", { courseId: button.attr("data-course-id") })
+                        .done(() => {
+                            button
+                                .removeClass("btn btn-default")
+                                .addClass("btn btn-info")
+                                .text("Going");
+                        })
+                        .fail(() => {
+                            alert("Something failed!");
+                        });
+                });
+
+                $(".js-toggle-follow").click((e) => {
+                    var button = $(e.target);
+                    $.post("/api/followings", { followeeId: button.attr("data-user-id") })
+                        .done(() => {
+                            button.text("Following");
+                        })
+                        .fail(() => {
+                            alert("Something failed!");
+                        });
+                });
+            })
+        </script>
+    }
+</div>

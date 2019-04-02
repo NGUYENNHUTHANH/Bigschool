@@ -1,0 +1,63 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+
+@model BigSchool.ViewModels.CoursesViewModel
+
+<div class="jumbotron">
+    <h1>ĐẠI HỌC CÔNG NGHỆ TP HCM</h1>
+    <p><a href="http://asp.net" class="btn btn-primary btn-lg">Tìm hiểu thêm &raquo;</a></p>
+</div>
+
+<div class="row">
+    <ul class="course">
+        @foreach (var course in Model.UpcomingCourses)
+        {
+            <li>
+                <div class="date">
+                    <div class="month">
+                        @course.DateTime.ToString("MM")
+                    </div>
+                    <div class="day">
+                        @course.DateTime.ToString("dd")
+                    </div>
+                </div>
+                <div class="details">
+                    <span class="lecturer">
+                        @course.Lecturer.Name
+                        @if (Model.ShowAction)
+                        {
+                            <button class="btn btn-default btn-sm js-toggle-follow" data-user-id="@course.LecturerId">Follow</button>
+                        }
+                    </span>
+                    <p class="category">
+                        @course.Category.Name
+                        <button data-course-id="@course.Id" class="btn btn-default btn-sm js-toggle-attendance">Going</button>
+                    </p>
+                   
+                </div>
+            </li>
+        }
+    </ul>
+    @section scripts {
+        <script>
+            $(document).ready(() => {
+                alert("Hello World!");
+
+                CourseController.init();
+   
+
+                $(".js-toggle-follow").click((e) => {
+                    var button = $(e.target);
+                    $.post("/api/followings", { followeeId: button.attr("data-user-id") })
+                        .done(() => {
+                            button.text("Following");
+                        })
+                        .fail(() => {
+                            alert("Something failed!");
+                        });
+                });
+            })
+        </script>
+    }
+</div>

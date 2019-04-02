@@ -1,0 +1,74 @@
+﻿@model IEnumerable<BigSchool.Models.Course>
+@{
+    ViewBag.Title = "Mine";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<h2>Mine</h2>
+<ul class="course">
+    @foreach (var course in Model)
+    {
+        <li>
+            <div class="date">
+                <div class="month">
+                    @course.DateTime.ToString("MM")
+                </div>
+                <div class="day">
+                    @course.DateTime.ToString("dd")
+                </div>
+            </div>
+            <div class="details">
+                <span class="lecturer">
+                    @course.Lecturer.Name
+                </span>
+                <p class="category">
+                    @course.Category.Name
+                </p>
+            </div>
+            <div class="action">
+                @Html.ActionLink("Edit", "Edit", new { id = course.Id }) |
+                <a href="#" class="js-cancel-course" data-course-id="@course.Id">
+                    Cancel
+                </a>
+            </div>
+        </li>
+    }
+</ul>
+@section scripts
+{
+    <script>
+        $(document).ready(() => {
+            $(".js-cancel-course").click((e) => {
+                e.preventDefault();
+                var link = $(e.target);
+                bootbox.confirm({
+                    title: "Cancel Course?",
+                    message: "Are you sure to cancel?",
+                    buttons: {
+                        cancel: {
+                            label: '<i class="fa fa-times"></i> Cancel'
+                        },
+                        confirm: {
+                            label: '<i class="fa fa-check"></i> Confirm'
+                        }
+                    },
+                    callback: (result) => {
+                        if (result) {
+                            $.ajax({
+                                url: `api/courses/${link.attr("data-course-id")}`,
+                                method: "DELETE"
+                            })
+                            .done(() => {
+                                link.parents("li").fadeOut(() => {
+                                    $(this).remove();
+                                });
+                            })
+                            .fail(() => {
+                                alert("Something failed!");
+                            });
+                        }
+                    }
+                });
+            });
+        })
+    </script>
+}
